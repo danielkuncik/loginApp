@@ -3,8 +3,11 @@ const express = require('express');
 const redis = require('redis');
 const hbs = require('express-hbs');
 const bodyParser = require('body-parser');
+const db = require(__dirname + '/queries.js');
 
-require('dotenv').config();
+const helpers = require('./helpers.js');
+
+console.log(process.env.NODE_ENV);
 
 let app = express();
 
@@ -30,11 +33,12 @@ client.on("error",(error) => {
 
 const port = process.env.PORT || 3000;
 
-app.get('/',(req,res) => {
+app.get('/',[db.loadAllUsers, (req,res) => {
     res.render('home.hbs', {
-        layout: 'default'
+        layout: 'default',
+        userList: req.userList
     });
-});
+}]);
 
 app.get('/createKey',(req, res) => {
     res.render('createKey.hbs', {
@@ -80,9 +84,35 @@ app.get('/createUser',(req, res) => {
     });
 });
 
-app.post('/createUser',(req,res) => {
-    const name = req.body.username;
-    const password = req.body.password;
+app.post('/createUser',[(req,res, next) => {
+    req.name = req.body.username;
+    req.password = req.body.password;
+    next();
+}, db.createUser,(req, res) => {
+    res.redirect('/');
+}]);
+
+app.get('/login',(req,res) => {
+    res.render('login.hbs', {
+        layout: 'default'
+    });
+});
+
+app.post('/login',[(req,res,next) => {
+    req.name = req.body.username;
+    req.password = req.body.password;
+    next();
+}, db.loginUser, (req, res) => {
+    res.redirect('/');
+}]);
+
+app.get('/logout',(req,res) => {
+    res.render('logout.hbs', {
+        layout: 'default'
+    });
+});
+
+app.post('/logout',(req,res) => {
     res.redirect('/');
 });
 
