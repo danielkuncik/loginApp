@@ -10,9 +10,10 @@
   "author": "Daniel Kuncik",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "latest",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-hbs": "^2.3.4",
-    "redis": "^3.0.2",
-    "body-parser": "latest"
+    "redis": "^3.0.2"
   }
 }
