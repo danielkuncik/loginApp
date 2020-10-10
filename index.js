@@ -22,7 +22,7 @@ app.engine('hbs', hbs.express4({
     layoutsDir: __dirname + '/views/layouts'
 }));
 
-let client = redis.createClient();
+let client = redis.createClient(process.env.REDIS_URL);
 client.on("error",(error) => {
     throw error
 });
