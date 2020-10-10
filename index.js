@@ -36,8 +36,9 @@ app.get('/',(req,res) => {
 });
 
 app.post('/',(req, res) => {
-    console.log(req.body.key);
-    console.log(req.body.value);
+    const key = req.body.key;
+    const value = req.body.value;
+    client.set(key, value);
     res.render('home.hbs', {
         layout: 'default'
     });
