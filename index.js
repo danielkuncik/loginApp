@@ -74,6 +74,17 @@ app.post('/readKey',(req,res) => {
     });
 });
 
+app.get('/createUser',(req, res) => {
+    res.render('createUser.hbs', {
+        layout: 'default'
+    });
+});
+
+app.post('/createUser',(req,res) => {
+    const name = req.body.username;
+    const password = req.body.password;
+    res.redirect('/');
+});
 
 app.listen(port, () => {
     console.log('server listening');
