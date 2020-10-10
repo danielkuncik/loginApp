@@ -1,0 +1,30 @@
+
+<h2>
+    Read Keys
+</h2>
+
+<form action = '/readKey' method = 'post'>
+    <ul>
+        <li>
+            Key<br>
+            <input type = 'text' name = 'key'/>
+        </li>
+    </ul>
+    <button type = 'submit' class = 'btn btn-primary'>SUBMIT</button>
+</form>
+
+{{#if key}}
+    <ul>
+        <li>
+            Key: {{key}}
+        </li>
+        <li>
+            Value: {{value}}
+        </li>
+    </ul>
+{{/if}}
+
+
+<h3>
+    <a href = '/createKey'>Create Keys</a>
+</h3>

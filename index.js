@@ -35,12 +35,41 @@ app.get('/',(req,res) => {
     });
 });
 
-app.post('/',(req, res) => {
+app.get('/createKey',(req, res) => {
+    res.render('createKey.hbs', {
+        layout: 'default'
+    });
+});
+
+
+app.post('/createKey',(req, res) => {
     const key = req.body.key;
     const value = req.body.value;
-    client.set(key, value);
-    res.render('home.hbs', {
+    client.set(key, value, () => {
+        res.render('createKey.hbs', {
+            layout: 'default'
+        });
+    });
+});
+
+app.get('/readKey',(req,res) => {
+    res.render('readKey.hbs', {
         layout: 'default'
+    });
+});
+
+app.post('/readKey',(req,res) => {
+    const keyEntered = req.body.key;
+    client.get(keyEntered, (err, reply) => {
+        if (err) {
+            throw err
+        }
+        const valueRead = reply;
+        res.render('readKey.hbs', {
+            layout: 'default',
+            key: keyEntered,
+            value: valueRead ? valueRead : 'null'
+        });
     });
 });
 
