@@ -6,6 +6,8 @@ const hbs = require('express-hbs');
 const bodyParser = require('body-parser');
 const db = require(__dirname + '/queries.js');
 
+const session = require('express-session');
+
 const helpers = require('./helpers.js');
 
 console.log(process.env.NODE_ENV);
@@ -33,39 +35,60 @@ client.on("error",(error) => {
     throw error
 });
 
+// I need to figure out more about what these options mean
+app.use(session({
+    secret: 'testRedisSessionStorey',
+    name: 'talkingAboutPractice',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }, //// set secure:true in production environment for the physics app...bc that has https      // Note that the cookie-parser module is no longer needed (set this as )
+    // store default is MemoryStore [which leaks]
+   // store: new redisStore({ host: 'localhost', port: 6379, client: redisClient, ttl: 86400 }),
+}));
+
 const port = process.env.PORT || 3000;
 
-app.get('/',[db.loadAllUsers, (req,res) => {
+const checkUserInfo = (req, res, next) => {
+    req.username = 'not logged in';
+    next();
+};
+
+
+app.get('/',[checkUserInfo, db.loadAllUsers, (req,res) => {
     res.render('home.hbs', {
         layout: 'default',
-        userList: req.userList
+        userList: req.userList,
+        username: req.username
     });
 }]);
 
-app.get('/createKey',(req, res) => {
+app.get('/createKey',[checkUserInfo, (req, res) => {
     res.render('createKey.hbs', {
-        layout: 'default'
+        layout: 'default',
+        username: req.username
     });
-});
+}]);
 
 
-app.post('/createKey',(req, res) => {
+app.post('/createKey',[checkUserInfo, (req, res) => {
     const key = req.body.key;
     const value = req.body.value;
     client.set(key, value, () => {
         res.render('createKey.hbs', {
-            layout: 'default'
+            layout: 'default',
+            username: req.username
         });
     });
-});
+}]);
 
-app.get('/readKey',(req,res) => {
+app.get('/readKey',[checkUserInfo, (req,res) => {
     res.render('readKey.hbs', {
-        layout: 'default'
+        layout: 'default',
+        username: req.username
     });
-});
+}]);
 
-app.post('/readKey',(req,res) => {
+app.post('/readKey',[checkUserInfo, (req,res) => {
     const keyEntered = req.body.key;
     client.get(keyEntered, (err, reply) => {
         if (err) {
@@ -75,16 +98,18 @@ app.post('/readKey',(req,res) => {
         res.render('readKey.hbs', {
             layout: 'default',
             key: keyEntered,
-            value: valueRead ? valueRead : 'null'
+            value: valueRead ? valueRead : 'null',
+            username: req.username
         });
     });
-});
+}]);
 
-app.get('/createUser',(req, res) => {
+app.get('/createUser',[checkUserInfo, (req, res) => {
     res.render('createUser.hbs', {
-        layout: 'default'
+        layout: 'default',
+        username: req.username
     });
-});
+}]);
 
 app.post('/createUser',[(req,res, next) => {
     req.name = req.body.username;
@@ -94,13 +119,14 @@ app.post('/createUser',[(req,res, next) => {
     res.redirect('/');
 }]);
 
-app.get('/login',(req,res) => {
+app.get('/login',[checkUserInfo, (req,res) => {
     res.render('login.hbs', {
-        layout: 'default'
+        layout: 'default',
+        username: req.username
     });
-});
+}]);
 
-app.post('/login',[(req,res,next) => {
+app.post('/login',[ (req,res,next) => {
     req.name = req.body.username;
     req.password = req.body.password;
     next();
@@ -109,11 +135,12 @@ app.post('/login',[(req,res,next) => {
     res.redirect('/');
 }]);
 
-app.get('/logout',(req,res) => {
+app.get('/logout',[checkUserInfo, (req,res) => {
     res.render('logout.hbs', {
-        layout: 'default'
+        layout: 'default',
+        username: req.username
     });
-});
+}]);
 
 app.post('/logout',(req,res) => {
     res.redirect('/');
