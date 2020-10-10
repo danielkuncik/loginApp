@@ -103,6 +103,7 @@ app.post('/login',[(req,res,next) => {
     req.password = req.body.password;
     next();
 }, db.loginUser, (req, res) => {
+    console.log(req.success);
     res.redirect('/');
 }]);
 

@@ -34,12 +34,11 @@ const createUser = (req, res, next) => {
 };
 
 const loginUser = (req, res, next) => {
-    next();
     pool.query('SELECT name FROM users WHERE name = $1 AND password = $2',[req.name, req.password],(error, results) => {
         if (error) {
             throw error
         }
-        if (results.rows > 1) {
+        if (results.rows.length > 0) {
             req.success = true;
             req.loggedInName = results.rows[0].name;
             next();
