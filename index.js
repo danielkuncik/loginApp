@@ -1,3 +1,4 @@
+require('dotenv').config();
 
 const express = require('express');
 const redis = require('redis');
@@ -8,6 +9,7 @@ const db = require(__dirname + '/queries.js');
 const helpers = require('./helpers.js');
 
 console.log(process.env.NODE_ENV);
+console.log(process.env.NODE_TLS_REJECT_UNAUTHORIZED);
 
 let app = express();
 

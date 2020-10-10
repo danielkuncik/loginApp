@@ -1,6 +1,6 @@
+require('dotenv').config();
 const Pool = require('pg').Pool;
 
-require('dotenv').config();
 const isProduction = process.env.NODE_ENV === 'production';
 /// in heroku, all node js applications defaul to NODE_ENV = production !!!
 
@@ -10,11 +10,10 @@ const connectionStringForDevelopment =
 
 const pool = new Pool({
     connectionString: isProduction ? process.env.DATABASE_URL : connectionStringForDevelopment,
-    ssl: isProduction,
+    ssl: isProduction
 });
 
 const loadAllUsers = (req, res, next) => {
-    req.userList = [{name:'dude1',password:'h'},{name:'dude2',password:'y'}];
     pool.query('SELECT * FROM users',(error, result) => {
         if (error) {
             throw error
