@@ -1,0 +1,14 @@
+{
+  "name": "loginapp",
+  "version": "1.0.0",
+  "description": "A simple login app using redis to store sessions.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Daniel Kuncik",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
