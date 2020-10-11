@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const db = require(__dirname + '/queries.js');
 
 const session = require('express-session');
+const redisStore = require('connect-redis')(session);
 
 const helpers = require('./helpers.js');
 
@@ -30,10 +31,12 @@ app.engine('hbs', hbs.express4({
     layoutsDir: __dirname + '/views/layouts'
 }));
 
-let client = redis.createClient(process.env.REDIS_URL);
-client.on("error",(error) => {
+let redisClient = redis.createClient(process.env.REDIS_URL);
+redisClient.on("error",(error) => {
     throw error
 });
+
+console.log(redisStore);
 
 // I need to figure out more about what these options mean
 app.use(session({
@@ -43,7 +46,7 @@ app.use(session({
     saveUninitialized: true,
     cookie: { secure: false }, //// set secure:true in production environment for the physics app...bc that has https      // Note that the cookie-parser module is no longer needed (set this as )
     // store default is MemoryStore [which leaks]
-   // store: new redisStore({ host: 'localhost', port: 6379, client: redisClient, ttl: 86400 }),
+    //store: new redisStore({ host: 'localhost', port: 6379, client: redisClient, ttl: 86400 }),
 }));
 
 const port = process.env.PORT || 3000;
@@ -76,7 +79,7 @@ app.get('/createKey',[checkUserInfo, (req, res) => {
 app.post('/createKey',[checkUserInfo, (req, res) => {
     const key = req.body.key;
     const value = req.body.value;
-    client.set(key, value, () => {
+    redisClient.set(key, value, () => {
         res.render('createKey.hbs', {
             layout: 'default',
             username: req.username,
@@ -95,7 +98,7 @@ app.get('/readKey',[checkUserInfo, (req,res) => {
 
 app.post('/readKey',[checkUserInfo, (req,res) => {
     const keyEntered = req.body.key;
-    client.get(keyEntered, (err, reply) => {
+    redisClient.get(keyEntered, (err, reply) => {
         if (err) {
             throw err
         }
