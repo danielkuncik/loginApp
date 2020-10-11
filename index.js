@@ -49,7 +49,8 @@ app.use(session({
 const port = process.env.PORT || 3000;
 
 const checkUserInfo = (req, res, next) => {
-    req.username = 'not logged in';
+    req.loggedIn = !!req.session.name;
+    req.username = req.loggedIn ? req.session.name : 'not logged in';
     next();
 };
 
@@ -58,14 +59,16 @@ app.get('/',[checkUserInfo, db.loadAllUsers, (req,res) => {
     res.render('home.hbs', {
         layout: 'default',
         userList: req.userList,
-        username: req.username
+        username: req.username,
+        loggedIn: req.loggedIn
     });
 }]);
 
 app.get('/createKey',[checkUserInfo, (req, res) => {
     res.render('createKey.hbs', {
         layout: 'default',
-        username: req.username
+        username: req.username,
+        loggedIn: req.loggedIn
     });
 }]);
 
@@ -76,7 +79,8 @@ app.post('/createKey',[checkUserInfo, (req, res) => {
     client.set(key, value, () => {
         res.render('createKey.hbs', {
             layout: 'default',
-            username: req.username
+            username: req.username,
+            loggedIn: req.loggedIn
         });
     });
 }]);
@@ -84,7 +88,8 @@ app.post('/createKey',[checkUserInfo, (req, res) => {
 app.get('/readKey',[checkUserInfo, (req,res) => {
     res.render('readKey.hbs', {
         layout: 'default',
-        username: req.username
+        username: req.username,
+        loggedIn: req.loggedIn
     });
 }]);
 
@@ -99,7 +104,8 @@ app.post('/readKey',[checkUserInfo, (req,res) => {
             layout: 'default',
             key: keyEntered,
             value: valueRead ? valueRead : 'null',
-            username: req.username
+            username: req.username,
+            loggedIn: req.loggedIn
         });
     });
 }]);
@@ -107,7 +113,8 @@ app.post('/readKey',[checkUserInfo, (req,res) => {
 app.get('/createUser',[checkUserInfo, (req, res) => {
     res.render('createUser.hbs', {
         layout: 'default',
-        username: req.username
+        username: req.username,
+        loggedIn: req.loggedIn
     });
 }]);
 
@@ -122,7 +129,8 @@ app.post('/createUser',[(req,res, next) => {
 app.get('/login',[checkUserInfo, (req,res) => {
     res.render('login.hbs', {
         layout: 'default',
-        username: req.username
+        username: req.username,
+        loggedIn: req.loggedIn
     });
 }]);
 
@@ -138,11 +146,13 @@ app.post('/login',[ (req,res,next) => {
 app.get('/logout',[checkUserInfo, (req,res) => {
     res.render('logout.hbs', {
         layout: 'default',
-        username: req.username
+        username: req.username,
+        loggedIn: req.loggedIn
     });
 }]);
 
 app.post('/logout',(req,res) => {
+    req.session.name = undefined;
     res.redirect('/');
 });
 

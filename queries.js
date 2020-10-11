@@ -38,8 +38,7 @@ const loginUser = (req, res, next) => {
             throw error
         }
         if (results.rows.length > 0) {
-            req.success = true;
-            req.loggedInName = results.rows[0].name;
+            req.session.name = results.rows[0].name;
             next();
         } else {
             req.success = false;
